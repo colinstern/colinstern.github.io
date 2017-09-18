@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" type="text/css" href="css/dc.css" />
+  <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
+  <script src="js/d3.js"></script>
+  <script src="js/crossfilter.js"></script>
+  <script src="js/dc.js"></script>
+  <script src="js/reductio.js"></script>
+  <script src="js/universe.js"></script>
+  <script type="text/javascript" src="js/colorbrewer.js"></script>
+  <style>
+  </style>
+  <title>TSA Claims Dataset</title>
+
+</head>
+
+<body>
+<!-- CSS -->
+<style type="text/css">
+</style>
+
+<!-- HTML -->
+
+<div class="container">
+
+  <h1>How Can the TSA Help Us Take a More Relaxing Vacation?</h1>
+  <h4>By <a href="http://colinstern.com/">Colin Stern</a></h4>
+
+  <h3>Time for a Vacation</h3>
+  <div><span>​You're taking some much needed time off from work in New York City and you're planning to spend it in Miami, lounging on the beach sipping margaritas. However, since you don't live anywhere near Miami, <b>you're going to need to take a flight</b>.</span> </div>
+  <img class="center-block" src="img/airplane-shape.svg" alt="View" style="width:100;height:100px;">
+  <div> However, you want this flight to be as stress-free as possible - you've dealt with plenty of stress at work. You decide that losing bags is one of the most stressful experiences that could happen on your flight, so you decide to try to <b>minimize the possibility</b>.
+  </div>
+  <img class="center-block" src="img/bag.png" alt="View" style="width:140;height:140px;">
+  <div> After some googling, you find historical records of claims from passengers sent to the TSA asking for compensation for lost or damaged bags. Using the data, you decide to plan your trip to avoid the airports and airlines which are most likely to ruin your trip by losing your bag. <b>Which airports and airlines should you avoid, and which should you fly? When should you fly? And what should you bring in your carry-on instead of your checked bag?</b></div>
+    <img class="center-block" src="img/takeoff-the-plane.svg" alt="View" style="width:140;height:140px;">
+    </span>
+
+  <div style="padding-bottom:15px;">Let's take a look at the <b>worst airports....</b></div>
+
+<!-- Heatmap - Airports by Volume of Claims-->
+<div class="row">
+  <div id="heatmap">
+       <h3>Airports by Volume of Claims</h3>
+       <a class="reset" href="javascript:airportHeatmap.filterAll();dc.redrawAll();" style="display: none;">reset</a>
+       <div class="clearfix"></div>
+       <div class="row">
+         <div id="heat-select">
+           <div>
+             <a class="reset"
+                href="javascript:heatSelect.filterAll();dc.redrawAll();"
+                style="visibility: hidden;">reset</a>
+           </div>
+         </div>
+       </div>
+   </div>
+</div>
+
+  <p>Every airport in the United States is displayed on this map with the icon size representing the square root of the number of claims to the TSA of lost of damaged baggage in 2015. The scale forces large airports to occlude less of the nearby airports. Hover over the airplane icon to see how many claims came from that airport. In New York, we see that <b>JFK</b> and <b>LaGuardia</b> lose the most bags of any airports in the area, while <b>Westchester County Airport</b> and <b>Stewart International Airport</b> are better alternatives. In Florida, meanwhile, <b>Miami International Airport</b> is slightly better than <b>Orlando International Airport. </b> Keep in mind, however, that the data is not normalized based on the number of visitors to each airport.</p>
+
+
+<!-- Heatmap key -->
+<div class="row">
+  <div id="heatmapKey">
+    <div class="clearfix"></div>
+  </div>
+</div>
+
+   <!--  Parallel coordinates - Correlations between Airport, Airline, Where Item was Lost, Close Amount and Disposition of Claim goes here -->
+<!-- <div class="row">
+   <div id="parallel-coordinates">
+        <strong>Correlations between Airport, Airline, Where Item was Lost, Close Amount and Disposition of Claim</strong>
+        <a class="reset" href="javascript:parallelCoordinates.filterAll();dc.redrawAll();" style="display: none;">reset</a>
+        <div class="clearfix"></div>
+        <div class="row">
+        </div>
+   </div>
+ </div> -->
+
+
+   <p>​Now, let's look at the <b>airlines...</b></p>
+
+
+   <!-- Number of selected records -->
+  <div class="row">
+      <div>
+          <div class="dc-data-count">
+              <span class="filter-count"></span> selected out of <span class="total-count"></span> records | <a
+                  href="javascript:dc.filterAll(); dc.renderAll();">Reset All</a>
+          </div>
+      </div>
+      <table class="table table-hover dc-data-table">
+      </table>
+  </div>
+  <div class="clearfix"></div>
+
+   <!-- Histogram - Number of Claims by Airline -->
+<div class="row">
+     <div id="number-claims-by-airline-histogram">
+          <h3>Number of Claims by Airline</h3>
+          <a class="reset" href="javascript:numberClaimsByAirlineHistogram.filterAll();dc.redrawAll();" style="display: none;">reset</a>
+          <div class="clearfix"></div>
+          <div class="row">
+            <div id="number-claims-by-airline-select">
+              <div>
+                <a class="reset"
+                   href="javascript:numberClaimsByAirlineSelect.filterAll();dc.redrawAll();"
+                   style="visibility: hidden;">reset</a>
+              </div>
+            </div>
+          </div>
+     </div>
+</div>
+<p style="padding-bottom:15px;">The height of each bar represents the square root of number of claims the TSA received pertaining to each airline. The scale allows smaller airlines to be visible on the chart. Our data says that <b>Southwest</b> and <b>Delta</b> lose the most bags, while <b>Virgin America</b> and <b>Emirates</b> are better alternatives. Once again, keep in mind that the data is not scaled based on the number of passengers of each airline.</p>
+
+<!-- Line chart - Volume of Claims -->
+<p style="padding-bottom:15px;">Alright, we have an idea of our origin and destination airports and which airline we're going to fly. But what is the <b>best time of year to fly?</b></p>
+<div class="row">
+    <div id="volume-claims-line">
+        <h3>Volume of Claims</h3>
+        <span class="reset" style="display: none;">range: <span class="filter"></span></span>
+        <a class="reset" href="javascript:volumeClaimsLine.filterAll();likeChart.filterAll();dc.redrawAll();"
+           style="display: none;">reset</a>
+        <div class="clearfix"></div>
+        <div class="row">
+          <div id="volume-claims-line-select">
+            <div>
+              <a class="reset"
+                 href="javascript:volumeClaimsLineSelect.filterAll();dc.redrawAll();"
+                 style="visibility: hidden;">reset</a>
+            </div>
+          </div>
+        </div>
+
+  <!-- Linked bar chart to line chart -->
+      <div id="volume-claims-line-slider">
+      </div>
+      <p class="muted pull-right" style="margin-right: 15px;"></p>
+</div>
+</div>
+
+<p style="padding-bottom:15px;">The line chart shows the number of claims in each month of 2015. It looks like baggage loss is fairly constant throughout the year, although <b>January</b> and <b>July</b> are slightly worse than average. <b>February</b> and <b>November</b> look slightly better - a perfect time to be a Florida Snowbird! </p>
+
+  <!-- Histogram - Number of Claims by Item Type -->
+  <p style="padding-bottom:15px;">As for the <b>types of stuff lost...</b></p>
+<div class="row">
+    <div id="number-of-claims-by-item-histogram">
+         <h3>Number of Claims by Item Type</h3>
+         <a class="reset" href="javascript:numberClaimsItemHistogram.filterAll();dc.redrawAll();" style="display: none;">reset</a>
+         <div class="clearfix"></div>
+         <div class="row">
+           <div id="number-claims-item-histogram-select">
+             <div>
+               <a class="reset"
+                  href="javascript:numberClaimsItemHistogramSelect.filterAll();dc.redrawAll();"
+                  style="visibility: hidden;">reset</a>
+             </div>	
+         </div>
+       </div>
+    </div>
+
+</div>
+<p style="padding-bottom:15px;">​The pie chart shows the breakdown of claims which had a given category of item. Airlines seem to lose a lot of <b>clothing</b>, and not a lot of <b>cameras</b>. So bring <b>clothing</b> in your carry-on instead! Of course, keep in mind that the data is not normalized by the total amount of each item put into checked baggage in 2015. Additionally, clicking on an item type does not select it in the other visualizations; however, selections in other visualizations are shown here.</p>
+
+
+<!-- Histogram - Percent of Denied Claims by Airport -->
+<p style="padding-bottom:15px;">But what happens if you <i>do</i> lose your bags? Which airport is <b>most likely to compensate you?</b></p>
+<div class="row">
+  <div id="percent-denied-claims-by-airport-histogram">
+       <h3>Percent of Denied Claims by Airport</h3>
+       <a class="reset" href="javascript:percentDeniedByAirportHistogram.filterAll();dc.redrawAll();" style="display: none;">reset</a>
+       <div class="clearfix"></div>
+       <div class="row">
+         <div id="percent-denied-by-airport-select">
+           <div>
+             <a class="reset"
+                href="javascript:percentDeniedByAirportSelect.filterAll();dc.redrawAll();"
+                style="visibility: hidden;">reset</a>
+           </div>
+         </div>
+       </div>
+   </div>
+ </div>
+
+ <p style="padding-bottom:15px;">Here, the airports are sorted by the percent of claims from them which were denied. <b>JFK</b> denied 60% of claims which is slightly below average. Meanwhile, <b>Westchester County Airport</b> denied 75% of claims, a bit worse. In Florida, <b>Fort Lauderdale International Airport</b> denied only 56% of claims, while <b>Miami International Airport</b> denied 70%. Ultimately, it seems that across all airports, getting compensated is rarely better than 50/50.</p>
+
+<h4>In conclusion,</h4>
+ <p style="padding-bottom:15px;">​if we're flying from the New York area, we'll want to avoid <b>JFK</b> and fly from <b>Stewart International Airport</b> instead. We'll want to fly <b>Emirates</b> (though you'll need to change planes in Dubai) and not <b>Southwest</b>. In Florida, we'll want to avoid <b>Orlando International Airport</b> and instead fly into <b>Miami International Airport</b>. If we have a choice, we'll want to fly in <b>February</b> and not <b>July</b>. We'll want to bring <b>clothing</b> in our carry-on and leave <b>cameras</b> in our checked bags. With the power of data science, we should get to Miami with our bags! Now, how to minimize the cost of those margaritas...</p>
+ <img class="center-block" src="img/margarita.svg" alt="View" style="width:140;height:140px;">
+
+<div class="row">
+</div>
+
+</div>
+
+
+<!-- JavaScript -->
+<script>
+'use strict';
+
+  /* Parse and format */
+  <!-- Parsing Dates -->
+  var dateParser = d3.time.format("%d-%b-%y").parse;
+
+  // Formatting axes
+  var percentFormat = d3.format(".0%");
+
+  // Formatting decimals
+  var roundFormat = d3.format(".2r");	
+
+  /* Create chart objects */
+
+  /* count selected records */
+  var claimsCount = dc.dataCount('.dc-data-count');
+
+  // Airport Heatmap
+  var airportHeatmap = dc.geoChoroplethChart('#heatmap');
+  // var heatmapKey = dc.heatMap("#heatmapKey");
+  // var heatSelect = dc.selectMenu('#heat-select');
+
+  // Percent of Denied Claims by Airport Histogram
+  var percentDeniedByAirportHistogram = dc.barChart('#percent-denied-claims-by-airport-histogram');
+  // var percentDeniedByAirportSelect = dc.selectMenu('#percent-denied-by-airport-select');
+
+  //  Parallel coordinates - Correlations between Airport, Airline, Where Item was Lost, Close Amount and Disposition of Claim goes here
+
+  // Number of Claims by Airline Histogram
+  var numberClaimsByAirlineHistogram = dc.barChart('#number-claims-by-airline-histogram');
+  // var numberClaimsByAirlineSelect = dc.selectMenu('#number-claims-by-airline-select');
+
+  // Volume of Claims Line Chart
+  var volumeClaimsLine = dc.lineChart('#volume-claims-line');
+  // var volumeClaimsLineSelect = dc.selectMenu('#volume-claims-line-select');
+  // var volumeClaimsLineSlider = dc.barChart('#volume-claims-line-slider');
+
+  // Number of Claims by Item Type Histogram
+  var numberClaimsItemHistogram = dc.pieChart('#number-of-claims-by-item-histogram');
+  // var numberClaimsItemHistogramSelect = dc.selectMenu('#number-claims-item-histogram-select');
+
+
+<!-- Data Input -->
+  d3.csv('data/claims-data-2015-as-of-feb-9-2016-ADDEDLATLONG-FLATTENED.csv', function(data) {
+        // Variable names
+        var var1 = "ClaimNumber";
+        var var2 = "DateReceived";
+        var var3 = "IncidentDate";
+        var var4 = "AirportCode";
+        var var5 = "AirportName";
+        var var6 = "AirlineName";
+        var var7 = "ClaimType";
+        var var8 = "ClaimSite";
+        var var9 = "ItemCategory";
+        var var10 = "CloseAmount";
+        var var11 = "Disposition";
+        var var12 = "Lat";
+        var var13 = "Long";
+
+        var var14 = "Unknown";
+        var var15 = "AudioVideo";
+        var var16 = "AutomobilePartsAccessories";
+        var var17 = "BaggageCasesPurses";
+        var var18 = "BooksMagazinesOther";
+        var var19 = "Cameras";
+        var var20 = "Clothing";
+        var var21 = "ComputerAccessories";
+        var var22 = "CosmeticsGrooming";
+        var var23 = "CraftingHobby";
+        var var24 = "Currency";
+        var var25 = "FoodDrink";
+        var var26 = "HomeDecor";
+        var var27 = "HouseholdItems";
+        var var28 = "HuntingFishingItems";
+        var var29 = "JewelryWatches";
+        var var30 = "MedicalScience";
+        var var31 = "MusicalInstrumentsAccessories";
+        var var32 = "OfficeEquipmentSupplies";
+		var var33 = "Other";
+		var var34 = "OutdoorItems";
+		var var35 = "PersonalAccessories";
+		var var36 = "PersonalDocuments";
+		var var37 = "PersonalElectronics";
+		var var38 = "PersonalNavigation";
+		var var39 = "SportingEquipmentSupplies";
+		var var40 = "ToolsHomeImprovementSupplies";
+		var var41 = "ToysGames";
+		var var42 = "TravelAccessories";
+
+
+        data.forEach(function (d) {
+          d[var1]=+d[var1];
+          d[var11]=+d[var11];
+          d[var12]=+d[var12];
+          d[var13]=+d[var13];
+
+          d[var14]=+d[var14];
+          d[var15]=+d[var15];
+          d[var16]=+d[var16];
+          d[var17]=+d[var17];
+          d[var18]=+d[var18];
+          d[var19]=+d[var19];
+          d[var20]=+d[var20];
+          d[var21]=+d[var21];
+          d[var22]=+d[var22];
+          d[var23]=+d[var23];
+          d[var24]=+d[var24];
+          d[var25]=+d[var25];
+          d[var26]=+d[var26];
+          d[var27]=+d[var27];
+
+          d[var28]=+d[var28];
+          d[var29]=+d[var29];
+          d[var30]=+d[var30];
+          d[var31]=+d[var31];
+          d[var32]=+d[var32];
+          d[var33]=+d[var33];
+          d[var34]=+d[var34];
+          d[var35]=+d[var35];
+          d[var36]=+d[var36];
+          d[var37]=+d[var37];
+          d[var38]=+d[var38];
+          d[var39]=+d[var39];
+          d[var40]=+d[var40];
+          d[var41]=+d[var41];
+          d[var42]=+d[var42];          
+
+
+
+          // Calculate date of claim
+          d.claimDate = dateParser(d[var2]);
+          d.claimMonth = d3.time.month(d.claimDate);
+        });
+
+<!-- CrossFilter -->
+var ndx = crossfilter(data),
+    all = ndx.groupAll(),
+    heatmapAirportsDim = ndx.dimension(function(d) {return d[var4];}),
+    histogramAirportsDim = ndx.dimension(function(d) {return d[var4];}),
+    // parallel coordinates dimension
+    histogramAirlineDim = ndx.dimension(function(d) {return d[var6];}),
+    lineClaimsDim = ndx.dimension(function(d) {return d.claimMonth;}),
+    histogramItemDim = ndx.dimension(function(d) {return d[var9];}),
+
+    heatmapAirportsGroup = heatmapAirportsDim.group().reduce(
+      function (p, v) {
+        ++p.count;
+        p.lat = v[var12];
+        p.long = v[var13];
+        return p;
+      },
+      function (p, v) {
+        --p.count;
+        p.lat = v[var12];
+        p.long = v[var13];
+        return p;
+      },
+      function () {
+        return {
+          count: 0,
+          lat: 0,
+          long: 0,
+        };
+      }
+    ),
+    histogramAirportsGroup = histogramAirportsDim.group().reduce(
+      function (p, v) {
+        ++p.count;
+        p.sum += v[var11];
+        p.avg = (p.sum / p.count) ? (p.sum / p.count) : 0;
+        return p;
+      },
+      function (p, v) {
+        --p.count;
+        p.sum -= v[var11];
+        p.avg = (p.sum / p.count) ? (p.sum / p.count) : 0;
+        return p;
+      },
+      function () {
+        return {
+          count: 0,
+          sum: 0,
+          avg: 0
+        };
+      }
+    ),
+    //parallel coordinates
+    histogramAirlineGroup = histogramAirlineDim.group().reduce(
+      function (p, v) {
+        ++p.count;
+        return p;
+      },
+      function (p, v) {
+        --p.count;
+        return p;
+      },
+      function () {
+        return {
+          count: 0
+        };
+      }
+    ),
+    lineClaimsGroup = lineClaimsDim.group().reduce(
+      function (p, v) {
+        ++p.count;
+        p.sum += v[var11];
+        p.avg = (p.sum / p.count);
+        return p;
+      },
+      function (p, v) {
+        --p.count;
+        p.sum -= v[var11];
+        p.avg = (p.sum / p.count);
+        return p;
+      },
+      function () {
+        return {
+          count: 0,
+          sum: 0,
+          avg: 0
+        };
+      }
+    ),
+    histogramItemGroup = histogramItemDim.group();
+
+    // Groups to allow the item chart
+     var runDimension  = ndx.dimension(function(d) {
+      return "Test";
+    }),
+    speedSumGroup = runDimension.group().reduce(function(p,v) {
+	  p.v14+=v.Unknown;
+	  p.v15+=v.AudioVideo;
+	  p.v16+=v.AutomobilePartsAccessories;
+	  p.v17+=v.BaggageCasesPurses;
+	  p.v18+=v.BooksMagazinesOther;
+	  p.v19+=v.Cameras;
+	  p.v20+=v.Clothing;
+	  p.v21+=v.ComputerAccessories;
+	  p.v22+=v.CosmeticsGrooming;
+	  p.v23+=v.CraftingHobby;
+	  p.v24+=v.Currency;
+	  p.v25+=v.FoodDrink;
+	  p.v26+=v.HomeDecor;
+	  p.v27+=v.HouseholdItems;
+	  p.v28+=v.HuntingFishingItems;
+	  p.v29+=v.JewelryWatches;
+	  p.v30+=v.MedicalScience;
+	  p.v31+=v.MusicalInstrumentsAccessories;
+	  p.v32+=v.OfficeEquipmentSupplies;
+	  p.v33+=v.Other;
+	  p.v34+=v.OutdoorItems;
+	  p.v35+=v.PersonalAccessories;
+	  p.v36+=v.PersonalDocuments;
+	  p.v37+=v.PersonalElectronics;
+	  p.v38+=v.PersonalNavigation;
+	  p.v39+=v.SportingEquipmentSupplies;
+	  p.v40+=v.ToolsHomeImprovementSupplies;
+	  p.v41+=v.ToysGames;
+	  p.v42+=v.TravelAccessories;	  
+      return p;
+    }, function(p,v) {
+	  p.v14-=v.Unknown;
+	  p.v15-=v.AudioVideo;
+	  p.v16-=v.AutomobilePartsAccessories;
+	  p.v17-=v.BaggageCasesPurses;
+	  p.v18-=v.BooksMagazinesOther;
+	  p.v19-=v.Cameras;
+	  p.v20-=v.Clothing;
+	  p.v21-=v.ComputerAccessories;
+	  p.v22-=v.CosmeticsGrooming;
+	  p.v23-=v.CraftingHobby;
+	  p.v24-=v.Currency;
+	  p.v25-=v.FoodDrink;
+	  p.v26-=v.HomeDecor;
+	  p.v27-=v.HouseholdItems;
+	  p.v28-=v.HuntingFishingItems;
+	  p.v29-=v.JewelryWatches;
+	  p.v30-=v.MedicalScience;
+	  p.v31-=v.MusicalInstrumentsAccessories;
+	  p.v32-=v.OfficeEquipmentSupplies;
+	  p.v33-=v.Other;
+	  p.v34-=v.OutdoorItems;
+	  p.v35-=v.PersonalAccessories;
+	  p.v36-=v.PersonalDocuments;
+	  p.v37-=v.PersonalElectronics;
+	  p.v38-=v.PersonalNavigation;
+	  p.v39-=v.SportingEquipmentSupplies;
+	  p.v40-=v.ToolsHomeImprovementSupplies;
+	  p.v41-=v.ToysGames;
+	  p.v42-=v.TravelAccessories;		  
+      return p;
+    }, function() {
+      return { v14: 0, v15: 0, v16:0,v17: 0, v18: 0, v19:0,v20: 0, v21: 0, v22:0,v23: 0, v24: 0, v25:0,v26: 0, v27: 0, v28: 0, v29: 0, v30:0,v31: 0, v32: 0, v33:0,v34: 0, v35: 0, v36:0,v37: 0, v38: 0, v39:0,v40: 0, v41: 0, v42: 0 }
+    });
+    var fakeGroup = {
+	  all: function() {
+		 return [
+	    { key: "Unknown", value: speedSumGroup.top(1)[0].value.v14 },
+	    { key: "AudioVideo", value: speedSumGroup.top(1)[0].value.v15 },
+	    { key: "AutomobilePartsAccessories", value: speedSumGroup.top(1)[0].value.v16 },
+	    { key: "BaggageCasesPurses", value: speedSumGroup.top(1)[0].value.v17 },
+	    { key: "BooksMagazinesOther", value: speedSumGroup.top(1)[0].value.v18 },
+	    { key: "Cameras", value: speedSumGroup.top(1)[0].value.v19 },
+	    { key: "Clothing", value: speedSumGroup.top(1)[0].value.v20 },
+	    { key: "ComputerAccessories", value: speedSumGroup.top(1)[0].value.v21 },
+	    { key: "CosmeticsGrooming", value: speedSumGroup.top(1)[0].value.v22 },
+	    { key: "CraftingHobby", value: speedSumGroup.top(1)[0].value.v23 },
+	    { key: "Currency", value: speedSumGroup.top(1)[0].value.v24 },
+	    { key: "FoodDrink", value: speedSumGroup.top(1)[0].value.v25 },
+	    { key: "HomeDecor", value: speedSumGroup.top(1)[0].value.v26 },
+	    { key: "HouseholdItems", value: speedSumGroup.top(1)[0].value.v27 },
+
+	    { key: "HuntingFishingItems", value: speedSumGroup.top(1)[0].value.v28 },
+	    { key: "JewelryWatches", value: speedSumGroup.top(1)[0].value.v29 },
+	    { key: "MedicalScience", value: speedSumGroup.top(1)[0].value.v30 },
+	    { key: "MusicalInstrumentsAccessories", value: speedSumGroup.top(1)[0].value.v31 },
+	    { key: "OfficeEquipmentSupplies", value: speedSumGroup.top(1)[0].value.v32 },
+	    { key: "Other", value: speedSumGroup.top(1)[0].value.v33 },
+	    { key: "OutdoorItems", value: speedSumGroup.top(1)[0].value.v34 },
+	    { key: "PersonalAccessories", value: speedSumGroup.top(1)[0].value.v35 },
+	    { key: "PersonalDocuments", value: speedSumGroup.top(1)[0].value.v36 },
+	    { key: "PersonalElectronics", value: speedSumGroup.top(1)[0].value.v37 },
+	    { key: "PersonalNavigation", value: speedSumGroup.top(1)[0].value.v38 },
+	    { key: "SportingEquipmentSupplies", value: speedSumGroup.top(1)[0].value.v39 },
+	    { key: "ToolsHomeImprovementSupplies", value: speedSumGroup.top(1)[0].value.v40 },
+	    { key: "ToysGames", value: speedSumGroup.top(1)[0].value.v41 },	    
+	    { key: "TravelAccessories", value: speedSumGroup.top(1)[0].value.v42 },	    
+
+	  ]; }
+	}
+
+
+// airportHeatmap is moved to end of file due to call to renderAll within the JSON callback
+// console.log(heatmapAirportsGroup.top(Infinity));
+
+
+
+
+
+<!-- Histogram - Percent of Denied Claims by Airport -->
+// A hack to allow sorting
+histogramAirportsGroup.order(function(d) {
+	// console.log(d);
+    return d.avg;
+});
+
+histogramAirportsGroup.all = function() {
+    return histogramAirportsGroup.top(Infinity);
+}
+
+percentDeniedByAirportHistogram
+    .width(1250)
+    .height(200)
+    .dimension(histogramAirportsDim)
+    .group(histogramAirportsGroup)
+    .yAxisLabel("Percent of Claims Denied")
+    .xAxisLabel("Airport")
+    // due to 0 to 100 percent range of denied claims
+    .x(d3.scale.ordinal().domain(function(d) {return d.key;}))
+    .valueAccessor(function (d) { return d.value.avg;})
+    .keyAccessor(function(d) { return d.key; })
+    .centerBar(false)
+    .elasticX(true)
+    .elasticY(true)
+    .title(function(d) {return d.key + ": " + percentFormat(d.value.avg) + " denied"})
+    .xUnits(dc.units.ordinal)
+    .ordering(function(d){
+    return d.value.avg })
+    .xAxis().tickFormat(function(d) { return ""; });
+  percentDeniedByAirportHistogram.yAxis().ticks(6);
+  percentDeniedByAirportHistogram.yAxis().tickFormat(percentFormat);
+
+<!-- Parallel Coordinates - Correlations between Airport, Airline, Where Item was Lost, Close Amount and Disposition of Claim -->
+
+
+<!-- Histogram - Number of Claims by Airline -->
+// A hack to allow sorting
+histogramAirlineGroup.order(function(d) {
+	// console.log(d);
+    return d.count;
+});
+
+histogramAirlineGroup.all = function() {
+    return histogramAirlineGroup.top(Infinity);
+}
+
+
+numberClaimsByAirlineHistogram
+  .width(1250)
+  .height(200)
+  .dimension(histogramAirlineDim)
+  .group(histogramAirlineGroup)
+  .yAxisLabel("Number of Claims")
+  .xAxisLabel("Airline")
+  .x(d3.scale.ordinal().domain(function(d) {return d.key;}))
+  .y(d3.scale.sqrt().domain([0, 1400]))
+  .valueAccessor(function (d) { return d.value.count;})
+  .keyAccessor(function(d) { return d.key; })
+  .elasticX(true)
+  .elasticY(true)
+  .xUnits(dc.units.ordinal)
+  .ordering(function(d){
+    return d.value.count })
+  .title(function(d) {return d.key + ": " + d.value.count + " claims"})
+  .xAxis().tickFormat(function(d) { return ""; });
+  // .valueAccessor(function (d) { return d.value.count;  })
+  // .keyAccessor(function(d) { return d.key; });
+
+
+<!-- Line chart - Volume of Claims: -->
+volumeClaimsLine
+  .width(1250)
+  .height(200)
+  // .chart(function(c) { return dc.lineChart(c).interpolate('linear');})
+  .x(d3.time.scale().domain([new Date(2015, 0, 1), new Date(2015, 11, 31)]))
+  // .xUnits(dc.units.ordinal)
+  .yAxisLabel("Number of Claims")
+  .xAxisLabel('Date')
+  .elasticY(true)
+  .dimension(lineClaimsDim)
+  .group(lineClaimsGroup)
+  .valueAccessor(function (d) {return d.value.count;})
+  .keyAccessor(function(d) {return d.key;})
+  .renderHorizontalGridLines(true);
+  // .legend(dc.legend().x(600).y(0).itemHeight(10).gap(3).horizontal(2).legendWidth(140).itemWidth(40));
+volumeClaimsLine.yAxis().ticks(6);
+
+
+<!-- Pie Chart - Number of Claims by Item Type -->
+numberClaimsItemHistogram
+	.dimension(runDimension)
+    .group(fakeGroup)
+     .title(function(d) {return d.key + ": " + d.value + " claims"})
+     .width(936)
+		  .height(585)
+		  .innerRadius(100)			
+		  .externalLabels(50)
+		  .externalRadiusPadding(60)
+		  .legend(dc.legend())
+		  .label(function(d) {return ""});
+
+numberClaimsItemHistogram.on('pretransition', function(chart) {
+          chart.selectAll('.dc-legend-item text')
+              .text('')
+            .append('tspan')
+              .text(function(d) { return d.name; })
+            .append('tspan')
+              .attr('x', 200)
+              .attr('text-anchor', 'end')
+              .text(function(d) { return d.data; });
+               });
+<!-- Count selected records widget -->
+
+claimsCount
+    .dimension(ndx)
+    .group(all)
+    .html({
+        some: '<strong>%filter-count</strong> selected out of <strong>%total-count</strong> records' +
+            ' | <a href=\'javascript:dc.filterAll(); dc.renderAll();\'>Reset All</a>',
+        all: 'All records selected. Please click on the graph to apply filters.'
+    });
+
+
+d3.json("./json/us-states.json", function (statesJson) {
+
+	<!-- HeatMap - Airports by Volume of Claims -->
+	airportHeatmap
+		.width(990)
+		.height(500)
+		.dimension(heatmapAirportsDim)
+		.group(heatmapAirportsGroup)
+		.colors(d3.scale.quantize().range(["#E2F2FF", "#C4E4FF", "#9ED2FF", "#81C5FF", "#6BBAFF", "#51AEFF", "#36A2FF", "#1E96FF", "#0089FF", "#0061B5"]))
+	    .colorDomain([0, 200])
+	    .colorCalculator(function (d) { return d ? airportHeatmap.colors()(d) : '#ccc'; })
+        .overlayGeoJson(statesJson.features, "state", function (d) {
+            return d.properties.name;
+        })
+        .valueAccessor(function(kv) {
+            // console.log(kv);
+            return kv.value.count;
+        })	
+        .title(function (d) {
+        	
+        	// console.log(d);
+                        return "State: " + d.key;
+        })
+        .on("renderlet", drawAdditionalStuffInMap);		
+
+        function drawAdditionalStuffInMap(_chart, selection) {
+		    var svg = _chart.svg();
+		    svg.selectAll("g.additionalStuff").remove();
+
+		    var group = svg.selectAll("g.additionalStuff");
+
+		    if (group.empty()) {
+		        group = svg.append("g").classed("additionalStuff", true);
+		    }
+
+            var proj = airportHeatmap.geoPath().projection();
+            var nodes = group.selectAll("circle").data(heatmapAirportsGroup.top(Infinity),
+            	function(d) {
+            		var posn = proj([d.value.long, d.value.lat]);
+            		// console.log(posn); 
+            		if (posn !== null) {
+            			return [posn[0], posn[1], d.value.count];
+            		}
+            		else {
+            			return [0,0,0];
+            		}
+            	})	
+
+            // nodes.enter()
+            // 	.append("circle")
+            		// .attr("x", function(d){return d[0]})
+            		// .attr("y", function(d){return d[1]})
+		    //you need to implement calculateAdditionalDataPoints
+		    // var additionalData = calculateAdditionalDataPoints();
+		    // var additionalNodes = group.selectAll("circle").data(additionalData, function(x) { return x.id; });
+
+
+		    // _chart.dimension().top(Infinity).map(function(d) {
+		    //         d.location = proj([d.Long, d.Lat]);
+		    //         return d;
+		    // });
+
+
+		    // });
+
+		    nodes.enter()
+		        .append("svg:image")
+		            .attr("x", 0)
+		            .attr("y", 0)
+		            .attr('width', function(d) {return 3*Math.sqrt(d.value.count)})
+				   	.attr('height', function(d) {return 3*Math.sqrt(d.value.count)	})
+				   	.attr("xlink:href","img/airplane-shape.svg")
+		            // .attr("r", function(d) {return d.value.count})
+		            .attr("transform", function(d){
+		             var posn = proj([d.value.long, d.value.lat]);
+		             // console.log(d); 
+		             if (posn !== null) {
+		           	  return "translate(" + posn[0] + "," + posn[1] + ")"; 
+		        	 }
+		        	 else {
+		        	 	return "translate(" + 120 + "," + 200 + ")";
+		        	 }})
+	            .append("title")
+				  .text(function(d) { return "\n" +d.key+"\n"+d.value.count + " claims"; });;
+
+		    nodes.exit().remove();
+}	
+
+
+	<!-- Render -->
+	dc.renderAll();
+	// console.log(airportHeatmap.geoPath().projection());
+	// console.log(histogramAirportsGroup.top(Infinity));
+});
+
+
+// end of data input callback
+  });
+
+</script>
+</body>
